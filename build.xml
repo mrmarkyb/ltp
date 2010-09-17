@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ltp" default="all">
+
+
+    <!-- Module LeftTruncatablePrime -->
+
+    <dirname property="basedir" file="${ant.file}"/>
+
+    <property name="production.output" value="${basedir}/out/production"/>
+    <property name="test.output" value="${basedir}/out/test"/>
+    <property name="report.dir" value="${basedir}/out/report"/>
+    <property name="dist" value="${basedir}/dist"/>
+
+
+    <path id="test.lib">
+        <pathelement location="${basedir}/lib/junit-4.5.jar"/>
+    </path>
+
+    <path id="lefttruncatableprime.runtime.module.classpath">
+        <pathelement location="${production.output}"/>
+        <pathelement location="${test.output}"/>
+    </path>
+
+
+    <path id="production.source">
+        <dirset dir="${basedir}">
+            <include name="src"/>
+        </dirset>
+    </path>
+
+    <path id="test.source">
+        <dirset dir="${basedir}">
+            <include name="test"/>
+        </dirset>
+    </path>
+
+
+    <target name="compile.all" depends="compile.production,compile.tests"
+            description="Compile module LeftTruncatablePrime"/>
+
+    <target name="compile.production" description="Compile module LeftTruncatablePrime; production classes">
+        <mkdir dir="${production.output}"/>
+        <javac destdir="${production.output}" fork="true">
+            <src refid="production.source"/>
+        </javac>
+
+    </target>
+
+    <target name="compile.tests" depends="compile.production"
+            description="compile module LeftTruncatablePrime; test classes">
+        <mkdir dir="${test.output}"/>
+        <javac destdir="${test.output}" fork="true">
+            <classpath>
+                <path refid="test.lib"/>
+                <pathelement location="${production.output}"/>
+            </classpath>
+            <classpath refid="test.lib"/>
+            <src refid="test.source"/>
+        </javac>
+    </target>
+
+
+    <target name="run.tests">
+        <mkdir dir="${report.dir}"/>
+        <junit >
+            <classpath>
+                <path refid="test.lib"/>
+                <pathelement location="${test.output}"/>
+                <pathelement location="${production.output}"/>
+            </classpath>
+
+            <batchtest todir="${report.dir}" failureproperty="test.failed">
+                <fileset dir="${basedir}/test">
+                    <include name="**/*Tests.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <fail if="test.failed" message="tests failed"/>
+    </target>
+
+    <target name="clean" description="cleanup all">
+        <delete dir="${basedir}/out"/>
+        <delete dir="${dist}"/>
+    </target>
+
+
+    <target name="build.modules" depends="clean, compile.all" description="build all modules"/>
+
+    <target name="jar">
+        <mkdir dir="${dist}"/>
+        <jar destfile="${dist}/ltp.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.burnett.primes.Console"/>
+            </manifest>
+            <fileset dir="${production.output}"/>
+        </jar>
+    </target>
+    <target name="all" depends="build.modules, run.tests, jar" description="build all"/>
+</project>

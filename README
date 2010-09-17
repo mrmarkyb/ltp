@@ -1,0 +1,4 @@
+To run application standalone:
+build with defult ant target.
+ - Jar is built to 'dist' directory.
+Navigate to 'dist' directory  run using 'java -jar ltp.jar'
